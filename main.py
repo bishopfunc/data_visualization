@@ -14,6 +14,19 @@ def merge(data1, data2):
     else:
         return None
 
+def save_png(filename):
+    p_file = pathlib.Path(filename)
+    if p_file.suffix == '.png':
+        return True
+    elif p_file.suffix == '.jpg':
+        return True
+    elif filename == '':
+        sg.popup('ファイルが入力されていません!')
+        return None
+    else:
+        sg.popup('ファイルの種類が間違っています!\n*.pngまたは*jpgファイルで保存して下さい!')
+        return None
+
 def read_file(filename):
     p_file = pathlib.Path(filename)
     if p_file.suffix == '.txt':
@@ -84,25 +97,22 @@ def make_fig(cleaned_data, column_dict, date):
             plt.ylabel('Fluoresence')
             plt.xlabel('Time [min]')
             plt.subplots_adjust(right=0.7)
-            print(fig)
             return fig
         else: 
             sg.popup("データ列数とwell数の合計が一致しません！")
             return None
     
-
 def plot(fig):
-    print(fig)
     if fig != None:
-        print("OK")
         plt.show(block=False)
 
 def save(fig):
     if fig != None:
         filepath = sg.popup_get_file('ファイルの保存先を選択して下さい。', save_as=True, file_types=(png_file_types,))
-        if filepath != None:
+        if save_png(filepath):
             plt.savefig(filepath)
             plt.close(fig)
+            sg.popup("ファイルの保存が成功しました!")
 
 
 def show_table(cleaned_data):
