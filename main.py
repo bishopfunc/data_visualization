@@ -1,3 +1,4 @@
+from curses import window
 import json
 import PySimpleGUI as sg
 import pandas as pd
@@ -8,7 +9,7 @@ import pathlib
 
 
 def merge(data1, data2):
-    if (type(data1)!= type(None)) and (type(data2)!= type(None)):
+    if  (not isinstance(data1, type(None))) and ( not isinstance(data2, type(None))):
         merged_data = pd.concat([data1,data2],axis=0)
         return merged_data
     else:
@@ -45,7 +46,7 @@ def read_dict(column_dict):
 
 def make_fig(cleaned_data, column_dict):
     column_dict = read_dict(column_dict)
-    if (type(column_dict) != type(None)) and (type(cleaned_data) != type(None)):
+    if (not isinstance(column_dict, type(None))) and  (not isinstance(cleaned_data, type(None))):
         if (len(cleaned_data.columns) == sum(column_dict.values())):
             times = np.arange(len(cleaned_data.index))
 
@@ -105,11 +106,15 @@ def show_table(cleaned_data):
                     auto_size_columns=False,
                     num_rows=min(25, len(data)))]
         ]
-        table_window = sg.Window('Table', table_layout)
+        table_window = sg.Window(f'Size: {cleaned_data.shape}', table_layout)
         envent, values = table_window.read()
         table_window.close() 
-        # print(cleaned_data.shape)
-        
+
+def redo(event, text):    
+    try:    
+        text.edit_redo()
+    except:
+        pass     
 
 default_dict = {"S30 21-6-1 GFPS1":1,
                "S30 21-6-1 sfGFP":3,
@@ -125,19 +130,32 @@ tab1_layout =  [[sg.Text('Step1: Enter one *.txt file...')],
                 [sg.Text(size=(8, 2), pad=(0,1))],
                 [sg.Text('Step2: Enter well name and number...')],
                 [sg.Multiline(key='tab1_column_dict', default_text=default_dict, size=(30, 10), font=('Arial',15)),],
-                [sg.Button('ShowTable'), sg.Button('Plot'), sg.Button('Save', key='Save')]]   
+                [sg.Button('Table'), sg.Button('Plot'), sg.Button('Save', key='Save')]]   
 
 tab2_layout = [[sg.Text('Step1: Enter two *.txt files...')],
                 [sg.Text('File 1', size=(8, 1)), sg.Input(key="tab2_file1", size=(30,1),), sg.FileBrowse(file_types=(("Text Files", "*.txt"),))],
                 [sg.Text('File 2', size=(8, 1)), sg.Input(key="tab2_file2", size=(30,1),), sg.FileBrowse(file_types=(("Text Files", "*.txt"),))],
                 [sg.Text('Step2: Enter well name and number...')],
                 [sg.Multiline(key='tab2_column_dict', default_text=default_dict, size=(30, 10), font=('Arial',15)),],
-                [sg.Button('ShowTable1'), sg.Button('ShowTable2'), sg.Button('Plot1'), sg.Button('Plot2')],
-                [sg.Button('ShowTableMerge'), sg.Button('PlotMerge'), sg.Button('Save', key='SaveMerge')]]   
+                [sg.Button('Table1'), sg.Button('Table2'), sg.Button('Plot1'), sg.Button('Plot2')],
+                [sg.Button('TableMerge'), sg.Button('PlotMerge'), sg.Button('Save', key='SaveMerge')]]   
 
 layout = [[sg.TabGroup([[sg.Tab('1seg mode', tab1_layout), sg.Tab('2seg mode', tab2_layout)]])]]    
 
-main_window = sg.Window('My window with tabs', layout, default_element_size=(30,1))    
+
+main_window = sg.Window('Igem Data Visualization Tool', layout, finalize=True)
+multiline1 = main_window["tab1_column_dict"].Widget 
+multiline1.configure(undo=True)
+multiline1.bind("<Control-Key-Y>", lambda event, text = multiline1: redo(event, text)) 
+multiline1.bind("<Control-Shift-Key-Z>", lambda event, text = multiline1: redo(event, text)) 
+multiline1.bind("<Command-Shift-Key-Z>", lambda event, text = multiline1: redo(event, text)) 
+
+multiline2 = main_window["tab2_column_dict"].Widget 
+multiline2.configure(undo=True)
+multiline2.bind("<Control-Key-Y>", lambda event, text = multiline2: redo(event, text)) 
+multiline2.bind("<Control-Shift-Key-Z>", lambda event, text = multiline2: redo(event, text)) 
+multiline2.bind("<Command-Shift-Key-Z>", lambda event, text = multiline2: redo(event, text)) 
+
 
 while True:    
     event, values = main_window.read()  
@@ -149,18 +167,18 @@ while True:
 
     print(f"envet: {event}")  
     print(f"values: {values}")  
-    if event == sg.WIN_CLOSED:           # always,  always give a way out!    
+    if event == sg.WIN_CLOSED:         
         break  
-    elif event == 'ShowTable':
+    elif event == 'Table':
         data = cleaning(tab1_filename)
         show_table(data)
-    elif event == 'ShowTable1':
+    elif event == 'Table1':
         data = cleaning(tab2_filename1)
         show_table(data)
-    elif event == 'ShowTable2':
+    elif event == 'Table2':
         data = cleaning(tab2_filename2)
         show_table(data)
-    elif event == 'ShowTableMerge':
+    elif event == 'TableMerge':
         data1 = cleaning(tab2_filename1)
         data2 = cleaning(tab2_filename2)
         merged_data = merge(data1, data2)        
@@ -168,6 +186,7 @@ while True:
     elif event == 'Plot':
         data = cleaning(tab1_filename)
         _fig = make_fig(data, tab1_column_dict)
+        print(_fig)
         plot(_fig)
     elif event == 'Plot1':
         data = cleaning(tab2_filename1)
