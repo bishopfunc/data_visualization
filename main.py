@@ -1,5 +1,6 @@
 from curses import window
 import json
+from tkinter import font
 import PySimpleGUI as sg
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,10 +21,10 @@ def read_file(filename):
     if p_file.suffix == '.txt':
         return True
     elif filename == '':
-        sg.popup('No File Input')
+        sg.popup('ファイルが入力されていません!')
         return None
     else:
-        sg.popup('File Type Error. Only *.txt is available.')
+        sg.popup('ファイルの種類が間違っています!\n*.txtファイルを開いて下さい!')
         return None
 
 def cleaning(filename):
@@ -41,12 +42,20 @@ def read_dict(column_dict):
         column_dict = json.loads(column_dict)
         return column_dict
     except:
-        sg.popup('Error Column Style')
+        sg.popup('Well情報のフォーマットが間違っています！')
         return None
 
-def make_fig(cleaned_data, column_dict):
+def check_date(date):
+    if date:
+        return date
+    else:
+        sg.popup('日付が入力されていません！')
+        return None
+
+def make_fig(cleaned_data, column_dict, date):
+    date = check_date(date)
     column_dict = read_dict(column_dict)
-    if (not isinstance(column_dict, type(None))) and  (not isinstance(cleaned_data, type(None))):
+    if (not isinstance(column_dict, type(None))) and (not isinstance(cleaned_data, type(None))) and(not isinstance(date, type(None))):
         if (len(cleaned_data.columns) == sum(column_dict.values())):
             times = np.arange(len(cleaned_data.index))
 
@@ -62,8 +71,8 @@ def make_fig(cleaned_data, column_dict):
             sns.set(style='ticks',font='sans-serif',font_scale=2)
 
             fig = plt.figure(figsize=(12,8))
-            # plt.title(f'{date}_results',fontsize='30')
-            cmap = ['Blue', 'Green', 'Orange', 'Red', 'Cyan','Yellow','Magenta' ,'Black']
+            plt.title(f'{date}_results',fontsize='30')
+            cmap = ['Blue', 'Green', 'Orange', inline_text_color, 'Cyan','Yellow','Magenta' ,'Black']
             linestyle = ['solid','dashdot','dotted']
 
             count=0
@@ -89,7 +98,7 @@ def plot(fig):
 
 def save(fig):
     if fig != None:
-        filepath = sg.popup_get_file('save', save_as=True, file_types=(("PNG Files", "*.png"),))
+        filepath = sg.popup_get_file('save', save_as=True, file_types=(png_file_types,))
         if filepath != None:
             plt.savefig(filepath)
             plt.close(fig)
@@ -125,22 +134,45 @@ default_dict = {"S30 21-6-1 GFPS1":1,
                 }
 default_dict = json.dumps(default_dict, indent=4)
 
-tab1_layout =  [[sg.Text('Step1: Enter one *.txt file...')],
-                [sg.Text('File 1', size=(8, 1)), sg.Input(key="tab1_file", size=(30,1)), sg.FileBrowse( file_types=(("Text Files", "*.txt"),))],
-                [sg.Text(size=(8, 2), pad=(0,1))],
-                [sg.Text('Step2: Enter well name and number...')],
-                [sg.Multiline(key='tab1_column_dict', default_text=default_dict, size=(30, 10), font=('Arial',15)),],
-                [sg.Button('Table'), sg.Button('Plot'), sg.Button('Save', key='Save')]]   
+basic_font = ('Arial',15, 'bold')
+multiline_font = ('Arial',20)
+multiline_size = (30, 10)
+inline_text_size = (40, 2)
+inline_text_color = 'blue'
+basic_text_size = (6, 1)
+txt_file_types = ("Text Files", "*.txt")
+png_file_types = ("PNG Files", "*.png")
 
-tab2_layout = [[sg.Text('Step1: Enter two *.txt files...')],
-                [sg.Text('File 1', size=(8, 1)), sg.Input(key="tab2_file1", size=(30,1),), sg.FileBrowse(file_types=(("Text Files", "*.txt"),))],
-                [sg.Text('File 2', size=(8, 1)), sg.Input(key="tab2_file2", size=(30,1),), sg.FileBrowse(file_types=(("Text Files", "*.txt"),))],
-                [sg.Text('Step2: Enter well name and number...')],
-                [sg.Multiline(key='tab2_column_dict', default_text=default_dict, size=(30, 10), font=('Arial',15)),],
-                [sg.Button('Table1'), sg.Button('Table2'), sg.Button('Plot1'), sg.Button('Plot2')],
-                [sg.Button('TableMerge'), sg.Button('PlotMerge'), sg.Button('Save', key='SaveMerge')]]   
+step1_text = 'Step1: *.txtファイルを開いて下さい。\n\
+            保存するグラフの日付を入力して下さい。'
+step2_text =  'Step2: well情報とその数を書き換えて下さい。\n\
+            データの列数とwellの数は一致すべきです。'
 
-layout = [[sg.TabGroup([[sg.Tab('1seg mode', tab1_layout), sg.Tab('2seg mode', tab2_layout)]])]]    
+def make_text(text, size=basic_text_size, pad=None, color=None):
+    return sg.Text(text=text, size=size, pad=pad, font=basic_font, text_color=color)
+
+
+def make_button(text, key=None):
+    return sg.Button(button_text=text, font=basic_font, key=key)
+
+tab1_layout =  [[make_text(step1_text, size=inline_text_size, color=inline_text_color)],
+                [make_text('File 1'), sg.Input(key="tab1_file", size=(40,4)), sg.FileBrowse('開く', file_types=(txt_file_types,))],
+                [make_text('', pad=((4,4), (3,3)))],
+                [make_text('Date'), sg.Input(key="tab1_date", size=(10,4))],
+                [make_text(step2_text, size=inline_text_size, color=inline_text_color)],
+                [sg.Multiline(key='tab1_column_dict', default_text=default_dict, size=multiline_size, font=multiline_font),],
+                [make_button('Table'), make_button('Plot'), make_button('Save', key='Save')]]   
+
+tab2_layout =  [[make_text(step1_text, size=inline_text_size, color=inline_text_color)],
+                [make_text('File 1'), sg.Input(key="tab2_file1", size=(40,4),), sg.FileBrowse('開く', file_types=(txt_file_types,))],
+                [make_text('File 2'), sg.Input(key="tab2_file2", size=(40,4),), sg.FileBrowse('開く', file_types=(txt_file_types,))],
+                [make_text('Date'), sg.Input(key="tab2_date", size=(10,4))],
+                [make_text(step2_text, size=inline_text_size, color=inline_text_color)],
+                [sg.Multiline(key='tab2_column_dict', default_text=default_dict, size=multiline_size, font=multiline_font),],
+                [make_button('Table1'), make_button('Table2'), make_button('Plot1'), make_button('Plot2')],
+                [make_button('TableMerge'), make_button('PlotMerge'), make_button('Save', key='SaveMerge')]]   
+
+layout = [[sg.TabGroup([[sg.Tab('1seg mode', tab1_layout, font=basic_font), sg.Tab('2seg mode', tab2_layout, font=basic_font)]])]]    
 
 
 main_window = sg.Window('Igem Data Visualization Tool', layout, finalize=True)
@@ -164,9 +196,11 @@ while True:
     tab2_filename2 =  values['tab2_file2']  
     tab1_column_dict =  values['tab1_column_dict']  
     tab2_column_dict =  values['tab2_column_dict']  
+    date1 = values['tab1_date']  
+    date2 = values['tab2_date']  
 
-    print(f"envet: {event}")  
-    print(f"values: {values}")  
+    # print(f"envet: {event}")  
+    # print(f"values: {values}")  
     if event == sg.WIN_CLOSED:         
         break  
     elif event == 'Table':
@@ -185,31 +219,31 @@ while True:
         show_table(merged_data)
     elif event == 'Plot':
         data = cleaning(tab1_filename)
-        _fig = make_fig(data, tab1_column_dict)
+        _fig = make_fig(data, tab1_column_dict, date1)
         print(_fig)
         plot(_fig)
     elif event == 'Plot1':
         data = cleaning(tab2_filename1)
-        _fig = make_fig(data, tab2_column_dict)
+        _fig = make_fig(data, tab2_column_dict, date2)
         plot(_fig)
     elif event == 'Plot2':
         data = cleaning(tab2_filename2)
-        _fig = make_fig(data, tab2_column_dict)
+        _fig = make_fig(data, tab2_column_dict, date2)
         plot(_fig)
     elif event == 'PlotMerge':
         data1 = cleaning(tab2_filename1)
         data2 = cleaning(tab2_filename2)
         merged_data = merge(data1, data2)
-        _fig = make_fig(merged_data, tab2_column_dict)
+        _fig = make_fig(merged_data, tab2_column_dict, date2)
         plot(_fig)
     elif event == 'Save':
         data = cleaning(tab1_filename)
-        _fig = make_fig(data, tab1_column_dict)
+        _fig = make_fig(data, tab1_column_dict, date1)
         save(_fig)
     elif event == 'SaveMerge':
         data1 = cleaning(tab2_filename1)
         data2 = cleaning(tab2_filename2)
         merged_data = merge(data1, data2)
-        _fig = make_fig(merged_data, tab2_column_dict)
+        _fig = make_fig(merged_data, tab2_column_dict, date2)
         save(_fig)
 
