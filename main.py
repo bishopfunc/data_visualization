@@ -1,6 +1,4 @@
-from curses import window
 import json
-from tkinter import font
 import PySimpleGUI as sg
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -86,6 +84,7 @@ def make_fig(cleaned_data, column_dict, date):
             plt.ylabel('Fluoresence')
             plt.xlabel('Time [min]')
             plt.subplots_adjust(right=0.7)
+            print(fig)
             return fig
         else: 
             sg.popup("データ列数とwell数の合計が一致しません！")
@@ -93,12 +92,14 @@ def make_fig(cleaned_data, column_dict, date):
     
 
 def plot(fig):
+    print(fig)
     if fig != None:
+        print("OK")
         plt.show(block=False)
 
 def save(fig):
     if fig != None:
-        filepath = sg.popup_get_file('save', save_as=True, file_types=(png_file_types,))
+        filepath = sg.popup_get_file('ファイルの保存先を選択して下さい。', save_as=True, file_types=(png_file_types,))
         if filepath != None:
             plt.savefig(filepath)
             plt.close(fig)
@@ -201,7 +202,8 @@ while True:
 
     # print(f"envet: {event}")  
     # print(f"values: {values}")  
-    if event == sg.WIN_CLOSED:         
+    if event == sg.WIN_CLOSED: 
+        # print("break")        
         break  
     elif event == 'Table':
         data = cleaning(tab1_filename)
@@ -220,7 +222,6 @@ while True:
     elif event == 'Plot':
         data = cleaning(tab1_filename)
         _fig = make_fig(data, tab1_column_dict, date1)
-        print(_fig)
         plot(_fig)
     elif event == 'Plot1':
         data = cleaning(tab2_filename1)
@@ -247,3 +248,4 @@ while True:
         _fig = make_fig(merged_data, tab2_column_dict, date2)
         save(_fig)
 
+main_window.close()
