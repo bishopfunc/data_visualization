@@ -72,7 +72,7 @@ def make_fig(cleaned_data, column_dict, date):
 
             fig = plt.figure(figsize=(12,8))
             plt.title(f'{date}_results',fontsize='30')
-            cmap = ['Blue', 'Green', 'Orange', inline_text_color, 'Cyan','Yellow','Magenta' ,'Black']
+            cmap = ['Blue', 'Green', 'Orange', 'Red', 'Cyan','Yellow','Magenta' ,'Black']
             linestyle = ['solid','dashdot','dotted']
 
             count=0
@@ -88,7 +88,7 @@ def make_fig(cleaned_data, column_dict, date):
             plt.subplots_adjust(right=0.7)
             return fig
         else: 
-            sg.popup("Column Length is Different")
+            sg.popup("データ列数とwell数の合計が一致しません！")
             return None
     
 
