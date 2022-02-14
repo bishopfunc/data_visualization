@@ -146,7 +146,7 @@ png_file_types = ("PNG Files", "*.png")
 step1_text = 'Step1: *.txtファイルを開いて下さい。\n\
             保存するグラフの日付を入力して下さい。'
 step2_text =  'Step2: well情報とその数を書き換えて下さい。\n\
-            データの列数とwellの数は一致すべきです。'
+            データ列数とwell数の合計は一致すべきです。'
 
 def make_text(text, size=basic_text_size, pad=None, color=None):
     return sg.Text(text=text, size=size, pad=pad, font=basic_font, text_color=color)
