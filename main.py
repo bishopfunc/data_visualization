@@ -108,7 +108,7 @@ def plot(fig):
 
 def save(fig):
     if fig != None:
-        filepath = sg.popup_get_file('ファイルの保存先を選択して下さい。', save_as=True, file_types=(png_file_types,))
+        filepath = sg.popup_get_file('ファイルの保存先を選択して下さい。\n*.pngファイルで保存して下さい!', save_as=True, file_types=(png_file_types,))
         if save_png(filepath):
             plt.savefig(filepath)
             plt.close(fig)
