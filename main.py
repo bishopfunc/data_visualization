@@ -202,19 +202,21 @@ multiline2.bind("<Command-Shift-Key-Z>", lambda event, text = multiline2: redo(e
 
 while True:    
     event, values = main_window.read()  
-    tab1_filename =  values['tab1_file']  
-    tab2_filename1 =  values['tab2_file1']  
-    tab2_filename2 =  values['tab2_file2']  
-    tab1_column_dict =  values['tab1_column_dict']  
-    tab2_column_dict =  values['tab2_column_dict']  
-    date1 = values['tab1_date']  
-    date2 = values['tab2_date']  
+    if values != None:
+        tab1_filename =  values['tab1_file']  
+        tab2_filename1 =  values['tab2_file1']  
+        tab2_filename2 =  values['tab2_file2']  
+        tab1_column_dict =  values['tab1_column_dict']  
+        tab2_column_dict =  values['tab2_column_dict']  
+        date1 = values['tab1_date']  
+        date2 = values['tab2_date']  
 
     # print(f"envet: {event}")  
     # print(f"values: {values}")  
     if event == sg.WIN_CLOSED: 
-        # print("break")        
-        break  
+        # print("break")      
+        # main_window.close()  
+        break
     elif event == 'Table':
         data = cleaning(tab1_filename)
         show_table(data)
@@ -257,5 +259,3 @@ while True:
         merged_data = merge(data1, data2)
         _fig = make_fig(merged_data, tab2_column_dict, date2)
         save(_fig)
-
-main_window.close()
