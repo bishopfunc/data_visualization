@@ -214,8 +214,6 @@ while True:
     # print(f"envet: {event}")  
     # print(f"values: {values}")  
     if event == sg.WIN_CLOSED: 
-        # print("break")      
-        # main_window.close()  
         break
     elif event == 'Table':
         data = cleaning(tab1_filename)
