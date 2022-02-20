@@ -8,7 +8,7 @@ import pathlib
 
 
 def merge(data1, data2):
-    if  (not isinstance(data1, type(None))) and ( not isinstance(data2, type(None))):
+    if  (not isinstance(data1, type(None))) and (not isinstance(data2, type(None))):
         merged_data = pd.concat([data1,data2],axis=0)
         return merged_data
     else:
@@ -53,7 +53,10 @@ def read_dict(column_dict):
         column_dict = json.loads(column_dict)
         return column_dict
     except:
-        sg.popup('Well情報のフォーマットが間違っています！')
+        sg.popup(
+            'Well情報のフォーマットが間違っています！\n'
+            '行末に余計な(,)がないか、("")と({})が抜けてないか確認しましょう。'
+            )
         return None
 
 def check_date(date):
@@ -65,6 +68,7 @@ def check_date(date):
 
 def make_fig(cleaned_data, column_dict, date):
     date = check_date(date)
+    title = f'{date}_results'
     column_dict = read_dict(column_dict)
     if (not isinstance(column_dict, type(None))) and (not isinstance(cleaned_data, type(None))) and(not isinstance(date, type(None))):
         if (len(cleaned_data.columns) == sum(column_dict.values())):
@@ -82,7 +86,7 @@ def make_fig(cleaned_data, column_dict, date):
             sns.set(style='ticks',font='sans-serif',font_scale=2)
 
             fig = plt.figure(figsize=(12,8))
-            plt.title(f'{date}_results',fontsize='30')
+            plt.title(title,fontsize='30')
             cmap = ['Blue', 'Green', 'Orange', 'Red', 'Cyan','Yellow','Magenta' ,'Black']
             linestyle = ['solid','dashdot','dotted']
 
@@ -99,7 +103,11 @@ def make_fig(cleaned_data, column_dict, date):
             plt.subplots_adjust(right=0.7)
             return fig
         else: 
-            sg.popup("データ列数とwell数の合計が一致しません！")
+            sg.popup(
+                "データ列数とwell数の合計が一致しません！\n"
+                f"      データ列数  : {len(cleaned_data.columns)}\n"
+                f"      well数の合計:{sum(column_dict.values())}"
+                )
             return None
     
 def plot(fig):
