@@ -1,4 +1,7 @@
 # Data Visualization Tool
+## インストール
+https://github.com/bishopfunc/igemwaseda_biotools/releases/tag/v1.0.1 からzipファイルをダウンロードし解凍する。
+
 ## チュートリアル
 - Step1: 実験データファイルを開く。日付を入力する。
 - Setp2: well情報とその数をサンプルに従い書き換える。
