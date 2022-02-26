@@ -26,7 +26,7 @@ def save_png(filename):
             sg.popup('ファイルが入力されていません!')
             return None
         else:
-            sg.popup('ファイルの種類が間違っています!\n*.pngまたは*jpgファイルで保存して下さい!')
+            sg.popup('ファイルの種類が間違っています!\n*.pngファイルで保存して下さい!')
             return None
 
 def read_file(filename):
