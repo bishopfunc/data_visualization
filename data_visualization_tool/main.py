@@ -109,7 +109,7 @@ def make_fig(cleaned_data, column_dict, date):
                 "データ列数とwell数の合計が一致しません！\n"
                 f"      データ列数  : {len(cleaned_data.columns)}\n"
                 f"      well数の合計: {sum(column_dict.values())}\n"
-                "もしくはwellの名前が重複しています！"
+                "もしくはwellの情報が重複しています！"
                 )
             return None
     
