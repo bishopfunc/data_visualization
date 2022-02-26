@@ -15,20 +15,19 @@ def merge(data1, data2):
         return None
 
 def save_png(filename):
-    try:
+    if filename != None:
         p_file = pathlib.Path(filename)
-    except:
-        pass
-    if p_file.suffix == '.png':
-        return True
-    elif p_file.suffix == '.jpg':
-        return True
-    elif filename == '':
-        sg.popup('ファイルが入力されていません!')
-        return None
-    else:
-        sg.popup('ファイルの種類が間違っています!\n*.pngまたは*jpgファイルで保存して下さい!')
-        return None
+ 
+        if p_file.suffix == '.png':
+            return True
+        elif p_file.suffix == '.jpg':
+            return True
+        elif filename == '':
+            sg.popup('ファイルが入力されていません!')
+            return None
+        else:
+            sg.popup('ファイルの種類が間違っています!\n*.pngまたは*jpgファイルで保存して下さい!')
+            return None
 
 def read_file(filename):
     p_file = pathlib.Path(filename)
