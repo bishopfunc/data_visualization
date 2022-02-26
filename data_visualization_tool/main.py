@@ -15,7 +15,10 @@ def merge(data1, data2):
         return None
 
 def save_png(filename):
-    p_file = pathlib.Path(filename)
+    try:
+        p_file = pathlib.Path(filename)
+    except:
+        pass
     if p_file.suffix == '.png':
         return True
     elif p_file.suffix == '.jpg':
@@ -106,7 +109,7 @@ def make_fig(cleaned_data, column_dict, date):
             sg.popup(
                 "データ列数とwell数の合計が一致しません！\n"
                 f"      データ列数  : {len(cleaned_data.columns)}\n"
-                f"      well数の合計:{sum(column_dict.values())}"
+                f"      well数の合計: {sum(column_dict.values())}"
                 )
             return None
     
