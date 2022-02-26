@@ -1,6 +1,13 @@
 # Data Visualization Tool
 ## インストール
-https://github.com/bishopfunc/igemwaseda_biotools/releases/tag/v1.0.1 からzipファイルをダウンロードし解凍する。
+- Step1: https://github.com/bishopfunc/igemwaseda_biotools/releases/tag/v1.0.1 からzipファイルをダウンロードし解凍する。
+- Step2: `main.app` または `main.exe`を実行
+
+- `.exe`, `.app`, `.zip`の拡張子はコンピューターにウィルスと認識される可能性があります。コンピューターにブロックされた際に以下の手順に従ってください。
+  - Mac: https://support.apple.com/ja-jp/HT202491
+  - Windows: https://www.buffalo.jp/support/faq/detail/124145337.html
+- また、情報セキュリティ上のリスクを軽減するため、**研究室等のコンピューターにこのアプリを絶対にダウンロードしないで下さい**。
+
 
 ## チュートリアル
 - Step1: 実験データファイルを開く。日付を入力する。
@@ -52,13 +59,6 @@ sample動画: https://drive.google.com/file/d/1BGkjgN61BzuDIIUZysG7YS29scEHmp6s/
 	
 ## 確認済みのバグ
 - `Plot`ボタンをクリックし画像を表示させたあと、グラフが別画面で立ちあがる。MacOSの場合、その画面を拡大するとアプリがクラッシュする。
-
-## セキュリティに関して
-- `.exe`, `.app`, `.zip`の拡張子はコンピューターにウィルスと認識される可能性があります。コンピューターにブロックされた際に以下の手順に従ってください。
-  - Mac: https://support.apple.com/ja-jp/HT202491
-  - Windows: https://www.buffalo.jp/support/faq/detail/124145337.html
-
-- また、情報セキュリティ上のリスクを軽減するため、**研究室等のコンピューターにこのアプリを絶対にダウンロードしないで下さい**。
 
 ## Google Form
 - バグの報告、使用方法の質問、追加機能の要望等があればこちらにご連絡ください。https://forms.gle/JgmBRNZM6xCwacoMA
