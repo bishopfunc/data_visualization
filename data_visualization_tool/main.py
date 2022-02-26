@@ -26,7 +26,7 @@ def save_png(filename):
             sg.popup('ファイルが入力されていません!')
             return None
         else:
-            sg.popup('ファイルの種類が間違っています!\n*.pngファイルで保存して下さい!')
+            sg.popup('ファイルの種類が間違っています!\n*.pngまたは*jpgファイルで保存して下さい!')
             return None
 
 def read_file(filename):
@@ -108,7 +108,8 @@ def make_fig(cleaned_data, column_dict, date):
             sg.popup(
                 "データ列数とwell数の合計が一致しません！\n"
                 f"      データ列数  : {len(cleaned_data.columns)}\n"
-                f"      well数の合計: {sum(column_dict.values())}"
+                f"      well数の合計: {sum(column_dict.values())}\n"
+                "もしくはwellの名前が重複しています！"
                 )
             return None
     
