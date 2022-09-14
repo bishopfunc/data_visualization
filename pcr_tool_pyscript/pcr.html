@@ -1,0 +1,216 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@holoviz/panel@0.13.0/dist/bundled/bootstraptemplate/bootstrap.css">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/@holoviz/panel@0.13.0/dist/panel.min.js"></script>
+    <script type="text/javascript">
+      Bokeh.set_log_level("info");
+    </script>
+    <style>
+        img, #lineplot, #errorbar {
+            height: 600px;
+            width: auto;
+            margin-right: auto;
+        }
+
+        .overflow-hidden {
+            overflow: scroll!important;
+        }
+        .bk .bk-root {
+            display: none;
+        }
+        #checkbox {
+            width: 1400px;
+            height: 40px;
+        }
+        #fileinput {
+            width: 1400px;
+        }
+        textarea {
+            width: 1400px;
+            height: 200px;
+        }
+    </style>
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <py-env>
+        - numpy
+        - pandas
+        - panel==0.13.1a2
+        - matplotlib
+        - seaborn
+    </py-env>
+</head>
+
+<body>
+    <div class="container-fluid d-flex flex-column vh-100 overflow-hidden" id="container">
+        <nav class="navbar navbar-expand-md navbar-dark sticky-top shadow" id="header"
+            style="background-color: #26A69A;">
+            <div class="app-header">
+                <a class="title" href="" style="color: #f7f6f3;">PCR Plot Tool</a>
+            </div>
+        </nav>
+
+        <div class="row overflow-hidden" id="content">
+            <div id="fileinput"></div>
+            <!--
+            <div id="checkbox" class="ml-2">
+                <label for="flex items-center p-2 ">
+                    <input class="mr-2" type="checkbox" class="task-check">
+                    <label class="m-0 inline">Error Bar</label>
+                </label>
+            </div>
+            -->
+            <textarea id="textarea" rows="" cols=""></textarea>
+            <div id="lineplot">
+             <!--<button id="click-btn-lineplot" class="bg-blue-500 text-white" pys-onClick="handle_click">Save</button>-->
+            </div>
+            <div id="errorbar" >
+            <!--<button id="click-btn-errorbar" class="bg-blue-500 text-white" pys-onClick="handle_click">Save</button>-->             
+            </div>
+        </div>
+    </div>
+    <py-script>
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import asyncio
+import panel as pn
+import pandas as pd
+from panel.io.pyodide import show
+from js import console, document, window, Blob
+from pyodide import to_js
+from matplotlib.figure import Figure
+
+file_input = pn.widgets.FileInput(accept='.txt', width=300)
+button_plot_all= pn.widgets.Button(name='Plot', button_type='primary', width=100)
+row = pn.Row(file_input, button_plot_all, height=75, width=1400)
+fig0 = Figure()
+mpl_pane0 = pn.pane.Matplotlib(fig0, dpi=144, tight=True)
+fig1 = Figure()
+mpl_pane1 = pn.pane.Matplotlib(fig1, dpi=144, tight=True)
+fig_dict = {}
+mpl_row0 = pn.Row(mpl_pane0)
+mpl_row1 = pn.Row(mpl_pane1)
+
+def lineplot(data, well_dict, date):
+    if data is not None:
+        del well_dict["fluorecein"]
+        fig = plt.figure(figsize=(25, 12))
+        plt.subplots_adjust(wspace=0.2, hspace=0.6)
+        ax1 = fig.add_subplot(1,2,1)
+        ax2 = fig.add_subplot(1,2,2)
+        ax1.set_title(f'{date} (SYBR)',fontsize='30')
+        ax1.set_xlabel("Time[min]")
+
+        ax2.set_title(f'{date} (ROX)',fontsize='30')
+        ax2.set_xlabel("Time[min]")
+
+        cmap = ['Blue', 'Green', 'Orange', 'Red','Cyan', 'Yellow','Magenta' ,'Black']
+        linestyle = ['solid','dashdot','dotted']
+
+        count=0
+        for i,key in enumerate(well_dict.keys()):
+            for j,well in enumerate(well_dict[key]):
+                name=f"{key}_{well}"
+                tmp_data = data[data["Well"]==well] 
+                times = tmp_data["Cycle"].values
+                
+                sybr = tmp_data["SYBR"].values
+                rox = tmp_data["ROX"].values
+                ax1.plot(times,sybr,color=cmap[i%8],label=f'{name}',linestyle=linestyle[j%3])
+                ax2.plot(times,rox,color=cmap[i%8],label=f'{name}',linestyle=linestyle[j%3])
+                count+=1
+                
+        plt.legend(bbox_to_anchor=(1.03, 1),loc=2,borderaxespad=0.1,fontsize='10')
+        fig_dict['fig0'] = fig
+        return fig
+
+def errorbar(data, well_dict, date):
+    DIV=4
+    fig =plt.figure(figsize=(8,10))
+
+    for i,key in enumerate(well_dict.keys()):
+        for j,well in enumerate(well_dict[key]):
+            name=f"{key}_{well}"
+            tmp_data = data[data["Well"]==well] 
+            times = tmp_data["Cycle"].values
+
+    time_points=np.linspace(0,len(times),num=DIV+1)
+    time_points[0]=1
+
+    for i,key in enumerate(well_dict.keys()):
+        ini_well = well_dict[key][0]
+        tmp_data = data[data["Well"]==ini_well] 
+        times = tmp_data["Cycle"].values
+            
+        
+        means =[]
+        sems = []
+
+        for t in time_points:
+            ts = data[data["Cycle"]==t]
+            ts.set_index("Well",inplace=True)
+            x = ts.loc[well_dict[key]]["SYBR"]
+            sems.append(x.sem()) #標準誤差
+            means.append(x.mean())
+        
+        plt.plot(time_points,means,label=f"{key}")
+        plt.errorbar(time_points,means,yerr=sems,fmt="ko",ecolor="black",capsize=4)
+
+    plt.xlabel("Time[min]")
+    plt.legend(bbox_to_anchor=(1.03, 1),loc=2,borderaxespad=0.,fontsize='12')
+    plt.title = f'{date}_error'
+    plt.tight_layout()
+    fig_dict['fig1'] = fig
+    return fig
+
+
+def save_lineplot(event):
+    fig = fig_dict['fig0']
+    date = fig_dict['date']
+    print(fig)
+    #fig.savefig(f'{date}_result')
+
+def save_errorbar(event):
+    fig = fig_dict['fig1']
+    date = fig_dict['date']
+    print(fig)
+    #fig.savefig(f'{date}_error')
+
+def button_plot_all_func(event):
+    
+    date = "220801"
+    well_dict = document.getElementById("textarea")
+    well_dict = well_dict.value
+    print(well_dict.value)
+    fig_dict['date'] = date
+
+    if file_input.value is not None:
+        data = pd.read_table(io.BytesIO(file_input.value),skiprows=8)
+        print("OK1")
+        print(data['Well'])
+        fig0 = lineplot(data, well_dict, date)
+        fig1 = errorbar(data, well_dict, date)
+        mpl_pane0.object = fig0
+        mpl_pane1.object = fig1
+        document.getElementById('lineplot').style.display = 'block'        
+        document.getElementById('errorbar').style.display = 'block'        
+
+button_plot_all.on_click(button_plot_all_func)
+
+await show(row, 'fileinput')
+await show(mpl_row0, 'lineplot')
+await show(mpl_row1, 'errorbar')
+</py-script>
+</body>
+
+</html>
