@@ -1,4 +1,4 @@
-# Data Visualization Tool
+# PCR Tool
 ## インストール
 - Step1: https://github.com/bishopfunc/igemwaseda_biotools/releases/tag/pcr_v1.0.0 からzipファイルをダウンロードし解凍する。
 - Step2: `main.app` または `main.exe`を実行
