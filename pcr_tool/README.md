@@ -8,6 +8,11 @@
   - Windows: https://www.buffalo.jp/support/faq/detail/124145337.html
 - また、情報セキュリティ上のリスクを軽減するため、**研究室等のコンピューターにこのアプリを絶対にダウンロードしないで下さい**。
 
+## サンプルデータ
+https://github.com/bishopfunc/igemwaseda_biotools/blob/master/pcr_tool/sample.txt
+テストにお使いください
+
+
 ## その他
 - 使い方等に関してはこちらのツールとほぼ同じです
   - 参考: https://github.com/bishopfunc/igemwaseda_biotools/blob/master/data_visualization_tool/README.md
